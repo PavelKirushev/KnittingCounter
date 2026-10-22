@@ -21,4 +21,8 @@
     <string name="row_ready_notification_text">Набрано %1$d петель. Можно начинать новый ряд.</string>
 
     <string name="commands_hint">Команды:\n«раз» → +1, «два» → +2, … «десять» → +10\n«один»…«девять» тоже работают\n«сброс» — обнулить счётчик</string>
+
+    <string name="service_channel">Фоновое распознавание</string>
+    <string name="service_notification_title">🎤 Вязальный счётчик слушает</string>
+    <string name="service_notification_text">Петель: %1$d</string>
 </resources>
