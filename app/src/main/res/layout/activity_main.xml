@@ -30,6 +30,14 @@
             android:textSize="14sp"
             android:textColor="@color/detailColor" />
 
+        <Button
+            android:id="@+id/stopServiceButton"
+            style="@style/AppButton.Stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/action_stop_and_close" />
+
         <TextView
             android:id="@+id/counterText"
             android:layout_width="wrap_content"
@@ -74,6 +82,7 @@
 
             <Button
                 android:id="@+id/setTargetButton"
+                style="@style/AppButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -88,16 +97,26 @@
 
             <Button
                 android:id="@+id/decreaseButton"
+                style="@style/AppButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="-1" />
 
             <Button
                 android:id="@+id/resetButton"
+                style="@style/AppButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/action_reset" />
+
+            <Button
+                android:id="@+id/toggleListeningButton"
+                style="@style/AppButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/action_stop_service" />
         </LinearLayout>
 
         <TextView

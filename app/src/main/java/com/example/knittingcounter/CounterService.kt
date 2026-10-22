@@ -119,8 +119,15 @@ class CounterService : Service() {
         acquireWakeLock()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
-        START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            Log.d(TAG, "ACTION_STOP received, stopping service")
+            setListeningEnabled(this, false)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
@@ -204,13 +211,26 @@ class CounterService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val stopIntent = PendingIntent.getService(
+            this, 1,
+            Intent(this, CounterService::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         return NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(getString(R.string.service_notification_title))
             .setContentText(getString(R.string.service_notification_text, count))
             .setContentIntent(contentIntent)
+            .addAction(
+                0,
+                getString(R.string.service_notification_action_stop),
+                stopIntent
+            )
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOnlyAlertOnce(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
     }
 
     private fun showRowReadyNotification() {
@@ -220,13 +240,16 @@ class CounterService : Service() {
         ) {
             return
         }
-        val capacity = target ?: return
+        val capacityCount = count
+        val capacityTarget = target ?: return
         val notification = NotificationCompat.Builder(this, ROW_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(getString(R.string.row_ready_notification_title))
-            .setContentText(getString(R.string.row_ready_notification_text, capacity))
+            .setContentText(getString(R.string.row_ready_notification_text, capacityCount, capacityTarget))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .build()
         try {
             NotificationManagerCompat.from(this).notify(ROW_NOTIFICATION_ID, notification)
@@ -255,8 +278,11 @@ class CounterService : Service() {
             val svc = NotificationChannel(
                 SERVICE_CHANNEL_ID,
                 getString(R.string.service_channel),
-                NotificationManager.IMPORTANCE_LOW
-            )
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                setSound(null, null)
+                enableVibration(false)
+            }
             getSystemService(NotificationManager::class.java).createNotificationChannel(svc)
 
             val rows = NotificationChannel(
@@ -307,6 +333,22 @@ class CounterService : Service() {
         private const val ROW_NOTIFICATION_ID = 1
         private const val WAKE_LOCK_TIMEOUT_MS = 60 * 60 * 1000L
 
+        const val ACTION_STOP = "com.example.knittingcounter.action.STOP"
+
+        private const val PREFS = "counter_prefs"
+        private const val PREF_LISTENING = "listening_enabled"
+
+        fun isListeningEnabled(context: Context): Boolean =
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(PREF_LISTENING, true)
+
+        fun setListeningEnabled(context: Context, enabled: Boolean) {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(PREF_LISTENING, enabled)
+                .apply()
+        }
+
         private val NUMBER_WORDS = linkedMapOf(
             "раз" to 1,
             "один" to 1,
@@ -324,7 +366,7 @@ class CounterService : Service() {
         )
 
         private val RESET_WORDS = setOf(
-            "сброс", "сбросить", "обнулить", "обнули", "ноль", "заново"
+            "сброс", "ноль", "заново"
         )
     }
 }

@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), CounterService.CounterListener {
     private lateinit var targetDisplay: TextView
     private lateinit var heardWord: TextView
     private lateinit var targetInput: EditText
+    private lateinit var toggleButton: Button
 
     private var service: CounterService? = null
     private var bound = false
@@ -82,6 +83,58 @@ class MainActivity : AppCompatActivity(), CounterService.CounterListener {
 
         findViewById<Button>(R.id.decreaseButton).setOnClickListener {
             service?.binder?.decrement()
+        }
+
+        toggleButton = findViewById(R.id.toggleListeningButton)
+        toggleButton.setOnClickListener { toggleListening() }
+        updateToggleButton()
+
+        findViewById<Button>(R.id.stopServiceButton).setOnClickListener { stopAndClose() }
+    }
+
+    private fun toggleListening() {
+        val enable = !CounterService.isListeningEnabled(this)
+        CounterService.setListeningEnabled(this, enable)
+        if (enable) {
+            startAndBind()
+        } else {
+            stopListeningService()
+        }
+        updateToggleButton()
+    }
+
+    private fun stopAndClose() {
+        CounterService.setListeningEnabled(this, false)
+        stopListeningService()
+    }
+
+    private fun stopListeningService() {
+        try {
+            stopService(Intent(this, CounterService::class.java))
+        } catch (_: Exception) {
+        }
+        if (bound) {
+            val s = service
+            if (s != null) s.binder.unregisterListener(this)
+            try {
+                unbindService(connection)
+            } catch (_: Exception) {
+            }
+            bound = false
+            service = null
+        }
+        statusText.text = getString(R.string.status_stopped)
+        statusDetail.text = ""
+    }
+
+    private fun updateToggleButton() {
+        val enabled = CounterService.isListeningEnabled(this)
+        toggleButton.text = getString(
+            if (enabled) R.string.action_stop_service else R.string.action_start_service
+        )
+        if (!enabled && service == null) {
+            statusText.text = getString(R.string.status_stopped)
+            statusDetail.text = ""
         }
     }
 
