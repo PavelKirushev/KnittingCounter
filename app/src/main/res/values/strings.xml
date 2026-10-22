@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Вязальный счётчик</string>
+
+    <string name="status_ready_hint">Скажите число: «раз», «два», … «десять»</string>
+    <string name="listening">🎤 Слушаю...</string>
+    <string name="no_speech">Не расслышал, попробуйте ещё раз</string>
+    <string name="error_listen">Ошибка распознавания речи</string>
+    <string name="need_permission">Нужен доступ к микрофону</string>
+
+    <string name="error_no_recognition_service">Нет службы распознавания речи</string>
+    <string name="error_no_recognition_service_hint">Установите Google-приложение или язык «Русский» в настройках распознавания речи</string>
+    <string name="error_model">Не удалось загрузить голосовую модель</string>
+
+    <string name="target_unset">Цель не задана</string>
+    <string name="target_set">Цель: %1$d</string>
+    <string name="target_hint">Цель (петель)</string>
+    <string name="action_set_target">ОК</string>
+    <string name="action_reset">Сброс</string>
+    <string name="row_ready_notification_title">Ряд готов!</string>
+    <string name="row_ready_notification_channel">Ряды</string>
+    <string name="row_ready_notification_text">Набрано %1$d петель. Можно начинать новый ряд.</string>
+
+    <string name="commands_hint">Команды:\n«раз» → +1, «два» → +2, … «десять» → +10\n«один»…«девять» тоже работают\n«сброс» — обнулить счётчик</string>
+</resources>
